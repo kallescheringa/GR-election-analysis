@@ -3,9 +3,8 @@ from elections import config
 
 from pathlib import Path
 from urllib.parse import urlparse
+from typing import Any
 import argparse
-import sys
-import zipfile
 import requests
 import yaml
 
