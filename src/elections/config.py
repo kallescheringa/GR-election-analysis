@@ -9,4 +9,4 @@ DATA_PROCESSED = DATA / "processed"
 DATA_SOURCES = DATA / "sources.yml"
 
 # Here you should add the names of the municipality which files you want to download
-MUNICIPALITY_NAME = "Lansingerland"
+MUNICIPALITY_NAME = "lansingerland"
