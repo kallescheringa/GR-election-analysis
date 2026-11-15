@@ -1,0 +1,8 @@
+pandas
+lxml
+sqlalchemy
+psycopg2-binary
+pyyaml
+requests
+pytest
+jupyter
