@@ -24,11 +24,11 @@ def target(name, url):
     suffix = Path(urlparse(url).path).suffix
     return config.DATA_RAW / f"{name}{suffix}"
 
-def download(name, url):
+def download(name, url, force=False):
     path = target(name, url)
 
-    if path.exists():
-        print(f"skip {path.name} (already exists)")
+    if path.exists() and not force:
+        print(f"skip {path.name} already exists (use --force to redownload)")
         return path
 
     config.DATA_RAW.mkdir(parents=True, exist_ok=True)
@@ -55,11 +55,15 @@ def download(name, url):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Parse the command used to download the file")
+    parser.add_argument("--force", action="store_true", help="redownload the file incase it exists")
+    args = parser.parse_args()
+
     with open(config.DATA_SOURCES, encoding="utf-8") as sources_file:
         sources = get_sources(yaml.safe_load(sources_file))
 
     for name, url in sources:
-        download(name, url)
+        download(name, url, force=args.force)
 
 if __name__ == "__main__":
     main()
