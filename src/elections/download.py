@@ -1,4 +1,4 @@
-# Download the paths as specified in config.py
+# Imports the paths as specified in config.py
 from elections import config
 
 from pathlib import Path
@@ -9,7 +9,15 @@ import zipfile
 import requests
 import yaml
 
-def get_sources(node, prefix=""):
+def get_sources(node: Any, prefix: str = "") -> list[tuple[str, str]]:
+    """ 
+    Finds all URLs in the parsed sources YAML.
+
+    Walks the nested dict recursively. Each entry with a "url" key becomes a 
+    (name, url) pair, where name joins the parent keys with underscores,
+    e.g. gemeenteraad_2026 -> eml gives gemeente_raad_2026_eml
+    """
+
     sources = []
     if isinstance(node, dict):
         if isinstance(node.get("url"), str):
@@ -20,11 +28,23 @@ def get_sources(node, prefix=""):
                 sources.extend(get_sources(v, name))
     return sources
 
-def target(name, url):
+def target(name: str, url: str) -> Path:
+    """
+    This function provides the location where the raw data should be stored.
+    It uses the DATA_RAW field from /src/elections/config.py
+    """
+
     suffix = Path(urlparse(url).path).suffix
     return config.DATA_RAW / f"{name}{suffix}"
 
-def download(name, url, force=False):
+def download(name: str, url: str, force: bool = False) -> Path:
+    """
+    Downloads one file into data/raw/ and return its path. 
+    
+    If the file already exists it skips it, unless force is True. 
+    Streams to a .part file first and renames it when complete.
+    This way an interrupted download does not mess up the data.
+    """
     path = target(name, url)
 
     if path.exists() and not force:
@@ -54,7 +74,12 @@ def download(name, url, force=False):
     return path
 
 
-def main():
+def main() -> None:
+    """
+    This function does the following:
+        1. Gets the sources from the yml file using the get_sources function
+        2. For each URL it tries to download it, and passes the --force flag on to the download function
+    """
     parser = argparse.ArgumentParser(description="Parse the command used to download the file")
     parser.add_argument("--force", action="store_true", help="redownload the file incase it exists")
     args = parser.parse_args()
