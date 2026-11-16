@@ -2,12 +2,13 @@ from elections import config
 
 from pathlib import Path
 import zipfile 
+import argparse
 
 ZIP_PATH = config.DATA_RAW / "gemeenteraad_2026_eml.zip"
 OUT_DIRECTORY = config.DATA_RAW / "lansingerland"
 MUNICIPALITY = config.MUNICIPALITY_NAME
 
-def extract() -> list[Path]:
+def extract(delete: bool = False) -> list[Path]:
     """
     Extract XML files belonging to the configured municipality from the ZIP archive.
 
@@ -26,11 +27,21 @@ def extract() -> list[Path]:
                 paths.append(target)
     print()
 
-    print(f"all files containing {MUNICIPALITY} extracted")
+    print(f"all files containing '{MUNICIPALITY}' extracted.", end="")
+    if delete:
+        ZIP_PATH.unlink()
+        print(f" Original ZIP file deleted: {ZIP_PATH}")
+    else:
+        print()
+
     return paths
 
 def main() -> None: 
-    extract()
+    parser = argparse.ArgumentParser(description="Parser that checks for flags when extracting")
+    parser.add_argument("--delete", action="store_true", help="deletes the original zipfile after successful extraction")
+    args = parser.parse_args()
+
+    extract(delete=args.delete)
 
 if __name__ == "__main__":
     main()
